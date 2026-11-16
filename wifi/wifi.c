@@ -461,6 +461,9 @@ int wifi_start_supplicant(int p2p_supported)
         strcpy(supplicant_prop_name, SUPP_PROP_NAME);
     }
 
+    /* Ensure primary_iface is populated even if supplicant is already running */
+    property_get("wifi.interface", primary_iface, WIFI_TEST_INTERFACE);
+
     /* Check whether already running */
     if (property_get(supplicant_prop_name, supp_status, NULL)
             && strcmp(supp_status, "running") == 0) {
@@ -598,6 +601,10 @@ int wifi_connect_on_socket_path(const char *path)
 int wifi_connect_to_supplicant()
 {
     static char path[PATH_MAX];
+
+    if (primary_iface[0] == '\0') {
+        property_get("wifi.interface", primary_iface, WIFI_TEST_INTERFACE);
+    }
 
     if (access(IFACE_DIR, F_OK) == 0) {
         snprintf(path, sizeof(path), "%s/%s", IFACE_DIR, primary_iface);
